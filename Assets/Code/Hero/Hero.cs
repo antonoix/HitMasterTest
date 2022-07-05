@@ -1,59 +1,59 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-public class Hero : MonoBehaviour
+public class Hero : MonoBehaviour, IStateProvider
 {
     private InputSystem _input;
 
     #region States
     private HeroState _currentState;
-    private RunHeroState _runState;
-    private StayHeroState _stayState;
+    private List<HeroState> _states;
     #endregion
-
-    public Point CurrentPoint;
 
     private void Awake()
     {
         _input = new PCInput();
         _input.OnClicked += HandleScreenTouch;
-        InitStates();
     }
 
-    private void InitStates()
+    public void InitStates(Point firstPoint)
     {
-        _runState = new RunHeroState(transform);
-        _stayState = new StayHeroState(transform);
+        _states = new List<HeroState>
+        {
+            new RunHeroState(transform, this, firstPoint),
+            new StayHeroState(transform, this, firstPoint)
+        };
     }
 
-    public void HandleScreenTouch(Vector3 pos)
+    public void HandlePointReached(Point point)
+    {
+        _currentState.ReachLocation(point);
+    }
+
+    public void HandleLocationPassed(Point nextPoint)
+    {
+        _currentState.PassLocation(nextPoint);
+    }
+
+    public void HandleWin()
+    {
+        _currentState.HandleWin();
+    }
+
+    private void HandleScreenTouch(Vector3 pos)
     {
         if (_currentState == null)
         {
-            SetRunState();
+            SetState<RunHeroState>();
             return;
         }
-
         _currentState.HandleScreenTouch(pos);
     }
 
-    public void SetRunState()
+    public void SetState<T>() where T : HeroState
     {
-        ExitPreviousState();
-        _currentState = _runState;
-        _currentState.Enter(CurrentPoint);
-    }
-
-    public void SetStayState()
-    {
-        ExitPreviousState();
-        _currentState = _stayState;
-        _currentState.Enter(CurrentPoint);
-    }
-
-    private void ExitPreviousState()
-    {
-        if (_currentState != null)
-            _currentState.Exit();
+        _currentState = _states.Find(state => state is T);
+        _currentState.Enter();
     }
 
     public void Update()

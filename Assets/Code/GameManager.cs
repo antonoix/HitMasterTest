@@ -11,33 +11,26 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-        _locationsHolder.OnLocationReached += HandleLocationReached;
+        _locationsHolder.OnPointReached += _hero.HandlePointReached;
         _locationsHolder.OnLocationPassed += HandleLocationPassed;
         _locationsHolder.OnAllLocationsPassed += HandleFinish;
     }
 
     private void Start()
     {
-        _hero.CurrentPoint = _locationsHolder.GetFirstLocation.Point;
-    }
-
-    private void HandleLocationReached(Location location)
-    {
-        _hero.CurrentPoint = location.Point;
-        _hero.SetStayState();
+        _hero.InitStates(_locationsHolder.GetFirstLocation.Point);
     }
 
     private void HandleLocationPassed(Location newLocation)
     {
-        _UI.UpdateProgress(_locationsHolder.ÑurrentLocation, _locationsHolder.LocationsCount);
-        _hero.CurrentPoint = newLocation.Point;
-        _hero.SetRunState();
+        _UI.UpdateProgress(_locationsHolder.CurrentLocation, _locationsHolder.LocationsCount);
+        _hero.HandleLocationPassed(newLocation.Point);
     }
 
     private void HandleFinish()
     {
+        _hero.HandleWin();
         _UI.UpdateProgress(1, 1);
-        _hero.SetStayState();
         _UI.ActivateRestart();
     }
 }

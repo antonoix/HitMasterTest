@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class LocationsHolder : MonoBehaviour
 {
-    public event Action<Location> OnLocationReached;
+    public event Action<Point> OnPointReached;
     public event Action<Location> OnLocationPassed;
     public event Action OnAllLocationsPassed;
 
     [SerializeField] private Location[] _locations;
 
     public int LocationsCount { get; private set; } 
-    public int ÑurrentLocation { get; private set; }
+    public int CurrentLocation { get; private set; }
 
     void Awake()
     {
@@ -27,17 +27,16 @@ public class LocationsHolder : MonoBehaviour
 
     private void HandleLocationPassed(Location location)
     {
-        if (ÑurrentLocation == _locations.Length - 1)
+        if (CurrentLocation == _locations.Length - 1)
         {
             OnAllLocationsPassed?.Invoke();
             return;
         }
-        Debug.Log(ÑurrentLocation + " locationPassed");
-        OnLocationPassed?.Invoke(_locations[++ÑurrentLocation]);
+        OnLocationPassed?.Invoke(_locations[++CurrentLocation]);
     }
 
     private void HandleLocationReached(Location location)
     {
-        OnLocationReached?.Invoke(_locations[ÑurrentLocation]);
+        OnPointReached?.Invoke(_locations[CurrentLocation].Point);
     }
 }
